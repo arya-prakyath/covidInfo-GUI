@@ -27,7 +27,7 @@ def notify(state, table_row):
 # Covid table window
 def covid_table(table_row):
     # Create a window
-    table_window = Toplevel(root)
+    table_window = Toplevel(root, bg=bg)
     table_window.title("State wise case table")
     table_window.wm_iconbitmap("icon.ico")
 
@@ -36,18 +36,33 @@ def covid_table(table_row):
     scroll.pack(side=RIGHT, fill=Y)
 
     # Create a table
-    table = ttk.Treeview(table_window, yscrollcommand=scroll.set, selectmode=NONE)
+    tree_style = ttk.Style()
+    tree_style.theme_use("clam")
+    tree_style.configure("Treeview",
+                         background=fg,
+                         foreground=bg,
+                         rowheight=55,
+                         font=("helvatica", 12, 'bold'),
+                         relief=NONE
+                         )
+    tree_style.map("Treeview", background=[('selected', bg)], foreground=[('selected', fg)])
+    table = ttk.Treeview(table_window, yscrollcommand=scroll.set, style="Treeview")
     scroll.config(command=table.yview)
-    table.pack(fill=BOTH, expand=True, pady=15)
+    table.pack(fill=BOTH, expand=True)
 
     # Define table structure
     columns = ("slno", "state", "confirmed", "recovery", "deaths")
     table["columns"] = columns
     for column in columns:
-        table.column(column, anchor=CENTER)
+        if column == "slno":
+            table.column(column, anchor=CENTER, width=50)
+        elif column == "state":
+            table.column(column, anchor=CENTER, width=500)
+        else:
+            table.column(column, anchor=CENTER)
     table["show"] = "headings"
-    table.heading("state", text="State")
-    table.heading("slno", text="Sl. NO.")
+    table.heading("state", text="State/ Union territory")
+    table.heading("slno", text="Sl. No.")
     table.heading("confirmed", text="Confirmed")
     table.heading("recovery", text="Recovered")
     table.heading("deaths", text="Deaths")
@@ -61,10 +76,11 @@ def covid_table(table_row):
         recovery = data[2].get_text()
         death = data[3].get_text()
         # Insert data into the table
-        table.insert("", index=END, values=(" ", "", "", "", ""))
         table.insert("", index=END, values=(index, state, confirmed, recovery, death))
         index += 1
 
+    treeFooter = Label(table_window, text="Copyrights - THE_ARYA 2020", anchor=CENTER, fg=btnbg, bg=btnfg, cursor="spider")
+    treeFooter.pack(side=BOTTOM, fill=X, pady=0, ipady=5)
 
 # State wise option list window
 def state_wise(table_row):
@@ -150,7 +166,7 @@ if __name__ == '__main__':
         connectionError = Label(root, text="Please connect to the internet and try again", font=('lucida', 12, 'bold'), fg="red")
         connectionError.pack(pady=25)
         closeBtn = Button(root, text="Close", font=('lucida', 12), width="50", anchor=CENTER, cursor="hand2",
-                          relief=SOLID, bg=btnbg, fg=btnfg, activebackground=activeBtn, command=root.destroy)
+                          relief=SOLID, bg=btnbg, fg=btnfg, activebackground=activeBtn, command=root.quit)
         closeBtn.pack(pady=(15, 0))
     # No error - Goto Home page
     else:
