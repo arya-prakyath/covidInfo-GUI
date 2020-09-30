@@ -4,7 +4,7 @@ from plyer import notification
 from bs4 import BeautifulSoup
 from tkinter import *
 from tkinter import ttk
-
+import os
 
 # Html fetcher
 def return_html(url):
@@ -21,7 +21,7 @@ def notify(state, table_row):
             title = f"Covid Cases in {state}"
             message = f"Confirmed Cases: {data[1].get_text()}\nRecovered: {data[2].get_text()}\nDeaths: {data[3].get_text()}"
             break
-    notification.notify(title=title, message=message, app_icon="icon.ico", timeout=20)
+    notification.notify(title=title, message=message, app_icon="./icon.ico", timeout=20)
 
 
 # Covid table window
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     root.wm_iconbitmap("icon.ico")
     root.geometry("500x300+200+200")
     root.resizable(False, False)
-
+	
     # Colors
     bg = "#FBEAEB"
     fg = "#1D1B1B"
