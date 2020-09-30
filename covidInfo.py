@@ -179,7 +179,7 @@ if __name__ == '__main__':
         stateBtn = Button(homeFrame, text="Choose State", font=('lucida', 12), width="50", anchor=CENTER, cursor="hand2", relief=SOLID, bg=btnbg, fg=btnfg,  activebackground=activeBtn, command=lambda: state_wise(tableRow))
         stateBtn.pack(pady=(15, 0))
 
-        closeBtn = Button(homeFrame, text="Close", font=('lucida', 12), width="50", anchor=CENTER, cursor="hand2", relief=SOLID, bg=btnbg, fg=btnfg,  activebackground=activeBtn, command=root.destroy)
+        closeBtn = Button(homeFrame, text="Close", font=('lucida', 12), width="50", anchor=CENTER, cursor="hand2", relief=SOLID, bg=btnbg, fg=btnfg,  activebackground=activeBtn, command=root.quit)
         closeBtn.pack(pady=(15, 0))
 
     # Footer/ CopyRights
