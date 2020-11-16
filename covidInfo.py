@@ -4,11 +4,14 @@ from plyer import notification
 from bs4 import BeautifulSoup
 from tkinter import *
 from tkinter import ttk
-import os
 
 # Html fetcher
 def return_html(url):
-    html = requests.get(url)
+    # Add headers to avoid 403
+    headers ={'authority': 'covidindia.org',
+               'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36}'
+            }
+    html = requests.get(url, headers=headers)
     html = html.text
     return html
 
@@ -82,6 +85,7 @@ def covid_table(table_row):
     treeFooter = Label(table_window, text="Copyrights - THE_ARYA 2020", anchor=CENTER, fg=btnbg, bg=btnfg, cursor="spider")
     treeFooter.pack(side=BOTTOM, fill=X, pady=0, ipady=5)
 
+
 # State wise option list window
 def state_wise(table_row):
     homeFrame.pack_forget()
@@ -95,7 +99,8 @@ def state_wise(table_row):
                   'Himachal Pradesh', 'Jammu and Kashmir', 'Jharkhand', 'Karnataka', 'Kerala', 'Ladakh',
                   'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha',
                   'Puducherry', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telengana', 'Tripura', 'Uttarakhand',
-                  'Uttar Pradesh', 'West Bengal']
+                  'Uttar Pradesh', 'West Bengal'
+                  ]
     state_var.set(state_list[0])
     state_options = OptionMenu(state_wise_frame, state_var, *state_list)
     state_options["relief"] = SOLID
@@ -139,7 +144,7 @@ if __name__ == '__main__':
     root.wm_iconbitmap("icon.ico")
     root.geometry("500x300+200+200")
     root.resizable(False, False)
-	
+
     # Colors
     bg = "#FBEAEB"
     fg = "#1D1B1B"
@@ -161,6 +166,7 @@ if __name__ == '__main__':
         tableData = covidDataHTML.find_all('tbody')[0]
         # Access rows - State wise
         tableRow = tableData.find_all('tr')[0:35+1]
+
     # No internet - error handling
     except Exception:
         connectionError = Label(root, text="Please connect to the internet and try again", font=('lucida', 12, 'bold'), fg="red")
@@ -168,6 +174,7 @@ if __name__ == '__main__':
         closeBtn = Button(root, text="Close", font=('lucida', 12), width="50", anchor=CENTER, cursor="hand2",
                           relief=SOLID, bg=btnbg, fg=btnfg, activebackground=activeBtn, command=root.quit)
         closeBtn.pack(pady=(15, 0))
+
     # No error - Goto Home page
     else:
         homeFrame = Frame(root, cursor="spider")
@@ -182,8 +189,8 @@ if __name__ == '__main__':
         closeBtn = Button(homeFrame, text="Close", font=('lucida', 12), width="50", anchor=CENTER, cursor="hand2", relief=SOLID, bg=btnbg, fg=btnfg,  activebackground=activeBtn, command=root.quit)
         closeBtn.pack(pady=(15, 0))
 
-    # Footer/ CopyRights
-    footer = Label(root, text="Copyrights - THE_ARYA 2020", anchor=CENTER, fg="BLACK", bg="#99b3e6", cursor="spider")
-    footer.pack(side=BOTTOM, fill=X, pady=0, ipady=5)
+        # Footer/ CopyRights
+        footer = Label(root, text="Copyrights - THE_ARYA 2020", anchor=CENTER, fg="BLACK", bg="#99b3e6", cursor="spider")
+        footer.pack(side=BOTTOM, fill=X, pady=0, ipady=5)
 
     root.mainloop()
