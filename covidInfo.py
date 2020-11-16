@@ -4,11 +4,11 @@ from plyer import notification
 from bs4 import BeautifulSoup
 from tkinter import *
 from tkinter import ttk
-import os
 
 # Html fetcher
 def return_html(url):
-    html = requests.get(url)
+    headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36"}
+    html = requests.get(url, headers=headers)
     html = html.text
     return html
 
