@@ -5,10 +5,12 @@ from bs4 import BeautifulSoup
 from tkinter import *
 from tkinter import ttk
 
+
 # Html fetcher
 def return_html(url):
-    headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36"}
-    html = requests.get(url, headers=headers)
+    # headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36"}
+    # html = requests.get(url, headers=headers)
+    html = requests.get(url)
     html = html.text
     return html
 
@@ -17,11 +19,11 @@ def return_html(url):
 def notify(state, table_row):
     for row in table_row:
         data = row.find_all('td')
-        if data[0].get_text() == state:
-            title = f"Covid Cases in {state}"
-            message = f"Confirmed Cases: {data[1].get_text()}\nRecovered: {data[2].get_text()}\nDeaths: {data[3].get_text()}"
+        if data[1].get_text() == state:
+            notification_title = f"Covid Cases in {state}"
+            notification_message = f"Confirmed Cases: {data[2].get_text()}\nActive Cases: {data[3].get_text()}\nRecovered: {data[4].get_text()}\nDeaths: {data[5].get_text()}"
             break
-    notification.notify(title=title, message=message, app_icon="./icon.ico", timeout=20)
+    notification.notify(title=notification_title, message=notification_message, app_icon="./icon.ico", timeout=20)
 
 
 # Covid table window
@@ -51,7 +53,7 @@ def covid_table(table_row):
     table.pack(fill=BOTH, expand=True)
 
     # Define table structure
-    columns = ("slno", "state", "confirmed", "recovery", "deaths")
+    columns = ("slno", "state", "confirmed", "active", "recovery", "deaths")
     table["columns"] = columns
     for column in columns:
         if column == "slno":
@@ -60,10 +62,12 @@ def covid_table(table_row):
             table.column(column, anchor=CENTER, width=500)
         else:
             table.column(column, anchor=CENTER)
+
     table["show"] = "headings"
-    table.heading("state", text="State/ Union territory")
     table.heading("slno", text="Sl. No.")
+    table.heading("state", text="State/ Union territory")
     table.heading("confirmed", text="Confirmed")
+    table.heading("active", text="Active")
     table.heading("recovery", text="Recovered")
     table.heading("deaths", text="Deaths")
 
@@ -71,16 +75,20 @@ def covid_table(table_row):
     index = 1
     for row in table_row:
         data = row.find_all('td')
-        state = data[0].get_text()
-        confirmed = data[1].get_text()
-        recovery = data[2].get_text()
-        death = data[3].get_text()
+        state = data[1].get_text()
+        confirmed = data[2].get_text()
+        active = data[3].get_text()
+        recovery = data[4].get_text()
+        death = data[5].get_text()
         # Insert data into the table
-        table.insert("", index=END, values=(index, state, confirmed, recovery, death))
+        table.insert("", index=END, values=(index, state, confirmed, active, recovery, death))
         index += 1
 
-    treeFooter = Label(table_window, text="Copyrights - THE_ARYA 2020", anchor=CENTER, fg=btnbg, bg=btnfg, cursor="spider")
-    treeFooter.pack(side=BOTTOM, fill=X, pady=0, ipady=5)
+    tree_footer = Label(table_window,
+                       text="Copyrights - THE_ARYA 2020",
+                       anchor=CENTER, fg=btnbg, bg=btnfg,
+                       cursor="spider")
+    tree_footer.pack(side=BOTTOM, fill=X, pady=0, ipady=5)
 
 # State wise option list window
 def state_wise(table_row):
@@ -114,10 +122,17 @@ def state_wise(table_row):
             warn_message.config(text="")
             notify(state_var.get(), table_row)
 
-    info_button = Button(state_wise_frame, text="Get Info", width="10",  anchor=CENTER, cursor="hand2", relief=SOLID, bg=btnbg, fg=btnfg,  activebackground=activeBtn, font=('lucida', 15), command=validate)
+    info_button = Button(state_wise_frame,
+                         text="Get Info", width="10",  anchor=CENTER,
+                         cursor="hand2", relief=SOLID,
+                         bg=btnbg, fg=btnfg,  activebackground=activeBtn,
+                         font=('lucida', 15), command=validate)
     info_button.pack(side=LEFT, pady=25, padx=15)
 
-    back_button = Button(state_wise_frame, text="Back", width="10", anchor=CENTER, cursor="hand2", relief=SOLID, bg=btnbg, fg=btnfg,  activebackground=activeBtn, font=('lucida', 15), command=back)
+    back_button = Button(state_wise_frame, text="Back", width="10", anchor=CENTER,
+                         cursor="hand2", relief=SOLID,
+                         bg=btnbg, fg=btnfg,  activebackground=activeBtn,
+                         font=('lucida', 15), command=back)
     back_button.pack(side=RIGHT, pady=25, padx=15)
 
     warn_message = Label(root, font=('lucida', 12, 'bold'), fg="red", cursor="spider")
@@ -139,7 +154,7 @@ if __name__ == '__main__':
     root.wm_iconbitmap("icon.ico")
     root.geometry("500x300+200+200")
     root.resizable(False, False)
-	
+
     # Colors
     bg = "#FBEAEB"
     fg = "#1D1B1B"
@@ -155,31 +170,51 @@ if __name__ == '__main__':
     # Fetch data
     # Check for internet connection
     try:
-        covidHTML = return_html(r"https://covidindia.org/")
+        # covidHTML = return_html(r"https://covidindia.org/")
+        covidHTML = return_html(r"https://prsindia.org/covid-19/cases")
         covidDataHTML = BeautifulSoup(covidHTML, 'html.parser')
         # Access table
         tableData = covidDataHTML.find_all('tbody')[0]
         # Access rows - State wise
         tableRow = tableData.find_all('tr')[0:35+1]
+
     # No internet - error handling
     except Exception:
-        connectionError = Label(root, text="Please connect to the internet and try again", font=('lucida', 12, 'bold'), fg="red")
+        connectionError = Label(root,
+                                text="Some error occured. Please try to connect to the internet and try again",
+                                font=('lucida', 12, 'bold'), fg="red")
         connectionError.pack(pady=25)
-        closeBtn = Button(root, text="Close", font=('lucida', 12), width="50", anchor=CENTER, cursor="hand2",
-                          relief=SOLID, bg=btnbg, fg=btnfg, activebackground=activeBtn, command=root.quit)
+        closeBtn = Button(root, text="Close", font=('lucida', 12),
+                          width="50", anchor=CENTER, cursor="hand2", relief=SOLID,
+                          bg=btnbg, fg=btnfg, activebackground=activeBtn,
+                          command=root.quit)
         closeBtn.pack(pady=(15, 0))
+
     # No error - Goto Home page
     else:
         homeFrame = Frame(root, cursor="spider")
         homeFrame.pack(fill=BOTH, expand=True)
 
-        tableBtn = Button(homeFrame, text="View Table", width="50", font=('lucida', 12), anchor=CENTER, cursor="hand2", relief=SOLID, bg=btnbg, fg=btnfg, activebackground=activeBtn, command=lambda: covid_table(tableRow))
+        tableBtn = Button(homeFrame, text="View Table", width="50",
+                          font=('lucida', 12), anchor=CENTER,
+                          cursor="hand2", relief=SOLID, bg=btnbg,
+                          fg=btnfg, activebackground=activeBtn,
+                          command=lambda: covid_table(tableRow))
         tableBtn.pack(pady=(25, 0))
 
-        stateBtn = Button(homeFrame, text="Choose State", font=('lucida', 12), width="50", anchor=CENTER, cursor="hand2", relief=SOLID, bg=btnbg, fg=btnfg,  activebackground=activeBtn, command=lambda: state_wise(tableRow))
+        stateBtn = Button(homeFrame, text="Choose State",
+                          font=('lucida', 12), width="50", anchor=CENTER,
+                          cursor="hand2", relief=SOLID,
+                          bg=btnbg, fg=btnfg,
+                          activebackground=activeBtn,
+                          command=lambda: state_wise(tableRow))
         stateBtn.pack(pady=(15, 0))
 
-        closeBtn = Button(homeFrame, text="Close", font=('lucida', 12), width="50", anchor=CENTER, cursor="hand2", relief=SOLID, bg=btnbg, fg=btnfg,  activebackground=activeBtn, command=root.quit)
+        closeBtn = Button(homeFrame, text="Close",
+                          font=('lucida', 12), width="50",
+                          anchor=CENTER, cursor="hand2", relief=SOLID,
+                          bg=btnbg, fg=btnfg,
+                          activebackground=activeBtn, command=root.quit)
         closeBtn.pack(pady=(15, 0))
 
     # Footer/ CopyRights
